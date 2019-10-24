@@ -123,8 +123,10 @@ def _parse_sample(text):
         # We ignore the starting curly brace
         label = text[label_start + 1:label_end]
         # The value is after the label end (ignoring curly brace and space)
-        value = float(_parse_value(text[label_end + 2:]))
-        return Sample(name, _parse_labels(label), value)
+        value_str = _parse_value(text[label_end + 2:])
+        timestamp_str = _parse_value(text[label_end + len(value_str) + 3:])
+        timestamp = float(timestamp_str) if timestamp_str else None
+        return Sample(name, _parse_labels(label), float(value_str), timestamp)
 
     # We don't have labels
     except ValueError:
@@ -135,8 +137,10 @@ def _parse_sample(text):
         name_end = text.index(separator)
         name = text[:name_end]
         # The value is after the name
-        value = float(_parse_value(text[name_end:]))
-        return Sample(name, {}, value)
+        value_str = _parse_value(text[name_end:])
+        timestamp_str = _parse_value(text[name_end + len(value_str) + 1:])
+        timestamp = float(timestamp_str) if timestamp_str else None
+        return Sample(name, {}, float(value_str), timestamp)
 
 
 def text_fd_to_metric_families(fd):
